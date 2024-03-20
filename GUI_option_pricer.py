@@ -75,25 +75,36 @@ def main():
         Inputparams = input_group("Please choose/enter your parameters",
                                   [
                                       select('Option Type', options=['Call', 'Put'], name='type'),
+                                      select('Control Variate Method', options=['no control variate', 'geometric Asian option'], name='cv_method'),
                                       input('S(0)', name='S_0'),
                                       input('Volatility (in float format, eg. 0.2)', name='v'),
                                       input('risk free rate (in float format,eg. 0.05)', name='rf'),
                                       input('Time to maturity (in year)', name='T'),
                                       input('Strike Price (K)', name='K'),
                                       input('Number of observation times for the geometric average n', name='n'),
-                                      input('Number of samples', name='M')
+                                      input('Number of samples', name='M'),
+
                                   ])
-        S0, K, T, v, r, option_type, N, M = (
+        S0, K, T, v, r, option_type, N, M, cv_method = (
         float(Inputparams['S_0']), float(Inputparams['K']), float(Inputparams['T']),
         float(Inputparams['v']), float(Inputparams['rf']), Inputparams['type'],
-        float(Inputparams['n']), float(Inputparams['M']))
+        float(Inputparams['n']), float(Inputparams['M']), Inputparams['cv_method'])
+
         asian_option = AsianOptionMC(option_type, S0, K, T, N, r, v, M)
-        values = list(asian_option.value_with_control_variate())
-        P, lower_bound, upper_bound = values[0], values[1], values[2]
-        put_markdown('## Result')
-        put_text("The value with control variate is {:.4f}".format(P))
-        put_text("The lower bound is {:.4f}".format(lower_bound))
-        put_text("The upper bound is {:.4f}".format(upper_bound))
+        if cv_method == 'no control variate':
+            values = list(asian_option.value)
+            P, lower_bound, upper_bound = values[0], values[1], values[2]
+            put_markdown('## Result')
+            put_text("The value with control variate is {:.4f}".format(P))
+            put_text("The lower bound is {:.4f}".format(lower_bound))
+            put_text("The upper bound is {:.4f}".format(upper_bound))
+        else:
+            values = list(asian_option.value_with_control_variate())
+            P, lower_bound, upper_bound = values[0], values[1], values[2]
+            put_markdown('## Result')
+            put_text("The value with control variate is {:.4f}".format(P))
+            put_text("The lower bound is {:.4f}".format(lower_bound))
+            put_text("The upper bound is {:.4f}".format(upper_bound))
 
     elif choice == 'D':
         return
