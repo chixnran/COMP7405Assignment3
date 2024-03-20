@@ -28,7 +28,7 @@ class BasketOptionMC(object):
         Bg = np.sqrt(self.S0_1 * self.S0_2)
         d1 = (np.log(Bg / self.K) + (mu + (1 / 2) * sigma_B ** 2) * self.T) / (sigma_B * np.sqrt(self.T))
         d2 = d1 - sigma_B * np.sqrt(self.T)
-        if self.option_type == 'call':
+        if self.option_type == 'Call':
             N1 = 0.5 * (1 + erf(d1 / np.sqrt(2)))
             N2 = 0.5 * (1 + erf(d2 / np.sqrt(2)))
             geometric_value = self.discount_factor() * (Bg * np.exp(mu * self.T) * N1 - self.K * N2)
@@ -58,7 +58,7 @@ class BasketOptionMC(object):
     def Arith_payoff(self):
         price_paths = self.price_path()
         arithMean = np.mean(price_paths, axis=2)
-        if self.option_type == 'call':
+        if self.option_type == 'Call':
             ArithPayoff = self.discount_factor() \
                           * np.maximum(np.mean(arithMean, 1) - self.K, 0)
         else:
@@ -70,7 +70,7 @@ class BasketOptionMC(object):
         price_paths = self.price_path()
         geoMean = np.sqrt(np.prod(price_paths, axis=2))
         geometric_average = np.exp((1 / float(self.N)) * np.sum(np.log(self.geoMean), 1))
-        if self.option_type == 'call':
+        if self.option_type == 'Call':
             payoffs = np.maximum(geometric_average - self.K, 0)
         else:
             payoffs = np.maximum(self.K - geometric_average, 0)

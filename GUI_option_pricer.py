@@ -4,12 +4,14 @@ from pywebio.session import hold
 from pywebio import start_server
 from BSModel import pricer
 from Asian_Option import AsianOptionMC
+from Basket_Option import BasketOptionMC
 from KIKO import KikoOptionMC
-
+from IV import IV
 
 
 OptionParameters = {
         'European':['S(0)','σ','rf','T','K','type','repo rate q'],  #S(0) | volatility σ | rf rate | T | K | type | repo rate q
+        'Implied Volatility':['S(0)','rf','T','K','type','the option premium'],
         'American':['S(0)','σ','rf','T','K','type','number of steps N'], #the number of steps N
         'Geometric Asian option':['S(0)','σ','rf','T','K','type','number of observation times for the geometric average n'], #the number of observation times for the geometric average n
         'Arithmetic Asian option':['S(0)','σ','rf','T','K','type','number of observation times for the geometric average n',
@@ -47,8 +49,25 @@ def main():
         put_markdown('## Result')
         put_text("the theoretical price of your option is {:4f}".format(P))
 
-    elif choice == 'B':
-        return
+    elif choice == 'Implied Volatility':
+        # Q2 iv
+        Inputparams = input_group("Please choose/enter your parameters",
+                                  [
+                                      select('Option Type', options=['Call', 'Put'], name='type'),
+                                      input('S(0)', name='S_0'),
+                                      input('True Price', name='C_true'),
+                                      input('risk free rate (in float format, eg. 0.05)', name='rf'),
+                                      input('Time to maturity (T)', name='T'),
+                                      input('Strike Price (K)', name='K'),
+
+                                  ])
+        S, K, C_true, T, cp_flag, r = (float(Inputparams['S_0']), float(Inputparams['K']), float(Inputparams['C_true']),
+                                  float(Inputparams['T']), Inputparams['type'], Inputparams['rf'])
+        iv = IV(S, K, C_true, T, cp_flag,r).find_imp_vol()
+        put_markdown('## Result')
+        put_text("the implied volatility is {:4f}".format(iv))
+
+
     elif choice == 'Geometric Asian option':
         # Q3 geometric asian
         Inputparams = input_group("Please choose/enter your parameters",
@@ -60,13 +79,41 @@ def main():
                                       input('Time to maturity (in year)', name='T'),
                                       input('Strike Price (K)', name='K'),
                                       input( 'Number of observation times for the geometric average n', name='n'),
-                                      input('Number of samples', name='M')
+                                      input('Number of samples', name='M', decription='we will not use M in geometric calculation')
                                   ])
         S0, K, T, v, r, option_type, N, M = (float(Inputparams['S_0']), float(Inputparams['K']), float(Inputparams['T']),
                                   float(Inputparams['v']), float(Inputparams['rf']), Inputparams['type'],
                                   float(Inputparams['n']), float(Inputparams['M']))
         asian_option = AsianOptionMC(option_type, S0, K, T, N, r, v, M)
         P = asian_option.GeometricAsianOption
+        put_markdown('## Result')
+        put_text("the theoretical price of your option is {:4f}".format(P))
+
+    elif choice == 'Geometric basket option':
+        # Q3 geometric basket
+        Inputparams = input_group("Please choose/enter your parameters",
+                                  [
+                                      select('Option Type', options=['Call', 'Put'], name='type'),
+                                      input('S0_1', name='S0_1'),
+                                      input('S0_2', name='S0_2'),
+                                      input('Volatility_1 (v in float format, eg. 0.2)', name='v1'),
+                                      input('Volatility_2 (v in float format, eg. 0.2)', name='v2'),
+                                      input('risk free rate (in float format, eg. 0.05)', name='rf'),
+                                      input('Time to maturity (T in year)', name='T'),
+                                      input('Strike Price (K)', name='K'),
+                                      input('Correlation', name='rho'),
+                                      input('Number of observation times for the geometric average n', name='n'),
+                                      input('Number of samples', name='M', decription='we will not use M in geometric calculation')
+
+                                  ])
+
+        S0_1, S0_2, K, T, v1, v2, r, option_type, rho, n, M= (
+        float(Inputparams['S0_1']), float(Inputparams['S0_2']), float(Inputparams['K']), float(Inputparams['T']),
+        float(Inputparams['v1']), float(Inputparams['v2']), float(Inputparams['rf']), Inputparams['type'],
+        float(Inputparams['rho']), float(Inputparams['n']), float(Inputparams['M']))
+
+        basket_option = BasketOptionMC(option_type, S0_1, S0_2, K, T, n, r, rho, v1, v2, M)
+        P = float(basket_option.GeometricBasketOption())
         put_markdown('## Result')
         put_text("the theoretical price of your option is {:4f}".format(P))
 
@@ -82,8 +129,7 @@ def main():
                                       input('Time to maturity (in year)', name='T'),
                                       input('Strike Price (K)', name='K'),
                                       input('Number of observation times for the geometric average n', name='n'),
-                                      input('Number of samples', name='M'),
-
+                                      input('Number of samples', name='M')
                                   ])
         S0, K, T, v, r, option_type, N, M, cv_method = (
         float(Inputparams['S_0']), float(Inputparams['K']), float(Inputparams['T']),
@@ -106,10 +152,47 @@ def main():
             put_text("The lower bound is {:.4f}".format(lower_bound))
             put_text("The upper bound is {:.4f}".format(upper_bound))
 
-    elif choice == 'D':
-        return
-    elif choice == 'E':
-        return
+    elif choice == 'Arithmetic basket option':
+        # Q5 arithmetic basket
+        Inputparams = input_group("Please choose/enter your parameters",
+                                  [
+                                      select('Option Type', options=['Call', 'Put'], name='type'),
+                                      select('Control Variate Method',
+                                             options=['no control variate', 'geometric Asian option'],
+                                             name='cv_method'),
+                                      input('S0_1', name='S0_1'),
+                                      input('S0_2', name='S0_2'),
+                                      input('Volatility_1 (v in float format, eg. 0.2)', name='v1'),
+                                      input('Volatility_2 (v in float format, eg. 0.2)', name='v2'),
+                                      input('risk free rate (in float format, eg. 0.05)', name='rf'),
+                                      input('Time to maturity (T in year)', name='T'),
+                                      input('Strike Price (K)', name='K'),
+                                      input('Correlation', name='rho'),
+                                      input('Number of observation times for the geometric average n', name='n'),
+                                      input('Number of samples', name='M')
+
+                                  ])
+        S0_1, S0_2, K, T, v1, v2, r, option_type, rho, n, M, cv_method = (
+            float(Inputparams['S0_1']), float(Inputparams['S0_2']), float(Inputparams['K']), float(Inputparams['T']),
+            float(Inputparams['v1']), float(Inputparams['v2']), float(Inputparams['rf']), Inputparams['type'],
+            float(Inputparams['rho']), float(Inputparams['n']), float(Inputparams['M']), Inputparams['cv_method'])
+
+        basket_option = BasketOptionMC(option_type, S0_1, S0_2, K, T, n, r, rho, v1, v2, M)
+        if cv_method == 'no control variate':
+            values = list(basket_option.value())
+            P, lower_bound, upper_bound = values[0], values[1], values[2]
+            put_markdown('## Result')
+            put_text("The value with control variate is {:.4f}".format(P))
+            put_text("The lower bound is {:.4f}".format(lower_bound))
+            put_text("The upper bound is {:.4f}".format(upper_bound))
+        else:
+            values = list(basket_option.value_with_control_variate())
+            P, lower_bound, upper_bound = values[0], values[1], values[2]
+            put_markdown('## Result')
+            put_text("The value with control variate is {:.4f}".format(P))
+            put_text("The lower bound is {:.4f}".format(lower_bound))
+            put_text("The upper bound is {:.4f}".format(upper_bound))
+
     elif choice == 'KIKO put option':
         # Q6
         Inputparams = input_group("Please choose/enter your parameters",
@@ -141,7 +224,7 @@ def main():
         put_text("The upper bound is {:.4f}".format(upper_bound))
         #put_text(option_type, S0, K, B_low, B_up, T, N, r, v, M, rebate)
 
-    elif choice == 'G':
+    elif choice == 'American':
         return
 
 
