@@ -3,7 +3,9 @@ from pywebio.output import *
 from pywebio.session import hold
 from pywebio import start_server
 from BSModel import pricer
-from KIKO没改完 import KikoOptionMC
+from Asian_Option import AsianOptionMC
+from KIKO import KikoOptionMC
+
 
 
 OptionParameters = {
@@ -31,10 +33,10 @@ def main():
                     [
                         select('Option Type', options=['Call', 'Put'], name='type'),
                         input('S(0)', name='S_0'),
-                        input('Volatility', name='v'),
-                        input('risk free rate', name='rf'),
-                        input('Time to maturity',name='T'),
-                        input('Strike Price',name='K'),
+                        input('Volatility (v in float format, eg. 0.2)', name='v'),
+                        input('risk free rate (in float format, eg. 0.05)', name='rf'),
+                        input('Time to maturity (T)',name='T'),
+                        input('Strike Price (K)',name='K'),
                         input('Repo rate q',name='q')
 
                     ])
@@ -42,38 +44,92 @@ def main():
                                   float(Inputparams['v']), float(Inputparams['rf']), Inputparams['type'], float(Inputparams['q']))
         model = pricer(S,K,T,v,r,type)
         P = model.BSM(q)
-        put_text("the theoretical price of your option is {}".format(P))
+        put_markdown('## Result')
+        put_text("the theoretical price of your option is {:4f}".format(P))
 
     elif choice == 'B':
         return
-    elif choice == 'C':
-        return
+    elif choice == 'Geometric Asian option':
+        # Q3 geometric asian
+        Inputparams = input_group("Please choose/enter your parameters",
+                                  [
+                                      select('Option Type', options=['Call', 'Put'], name='type'),
+                                      input('S(0)', name='S_0'),
+                                      input('Volatility (in float format, eg. 0.2)', name='v'),
+                                      input('risk free rate (in float format,eg. 0.05)', name='rf'),
+                                      input('Time to maturity (in year)', name='T'),
+                                      input('Strike Price (K)', name='K'),
+                                      input( 'Number of observation times for the geometric average n', name='n'),
+                                      input('Number of samples', name='M')
+                                  ])
+        S0, K, T, v, r, option_type, N, M = (float(Inputparams['S_0']), float(Inputparams['K']), float(Inputparams['T']),
+                                  float(Inputparams['v']), float(Inputparams['rf']), Inputparams['type'],
+                                  float(Inputparams['n']), float(Inputparams['M']))
+        asian_option = AsianOptionMC(option_type, S0, K, T, N, r, v, M)
+        P = asian_option.GeometricAsianOption
+        put_markdown('## Result')
+        put_text("the theoretical price of your option is {:4f}".format(P))
+
+    elif choice == 'Arithmetic Asian option':
+        # Q4 MC arithmatic asian option
+        Inputparams = input_group("Please choose/enter your parameters",
+                                  [
+                                      select('Option Type', options=['Call', 'Put'], name='type'),
+                                      input('S(0)', name='S_0'),
+                                      input('Volatility (in float format, eg. 0.2)', name='v'),
+                                      input('risk free rate (in float format,eg. 0.05)', name='rf'),
+                                      input('Time to maturity (in year)', name='T'),
+                                      input('Strike Price (K)', name='K'),
+                                      input('Number of observation times for the geometric average n', name='n'),
+                                      input('Number of samples', name='M')
+                                  ])
+        S0, K, T, v, r, option_type, N, M = (
+        float(Inputparams['S_0']), float(Inputparams['K']), float(Inputparams['T']),
+        float(Inputparams['v']), float(Inputparams['rf']), Inputparams['type'],
+        float(Inputparams['n']), float(Inputparams['M']))
+        asian_option = AsianOptionMC(option_type, S0, K, T, N, r, v, M)
+        values = list(asian_option.value_with_control_variate())
+        P, lower_bound, upper_bound = values[0], values[1], values[2]
+        put_markdown('## Result')
+        put_text("The value with control variate is {:.4f}".format(P))
+        put_text("The lower bound is {:.4f}".format(lower_bound))
+        put_text("The upper bound is {:.4f}".format(upper_bound))
+
     elif choice == 'D':
         return
     elif choice == 'E':
         return
     elif choice == 'KIKO put option':
-        # # Q6
-        # Inputparams = input_group("Please choose/enter your parameters",
-        #                           [
-        #                               input('S(0)', name='S_0'),
-        #                               input('Volatility', name='v'),
-        #                               input('risk free rate', name='rf'),
-        #                               input('Time to maturity', name='T'),
-        #                               input('Strike Price', name='K'),
-        #                               input('Repo rate q', name='q')
-        #                               input('lower barrier L', name='B_low')
-        #                               input('Upper barrier U', name='B_up')
-        #                               input('Number of observation times', name='n')
-        #                               input('The cash rebate', name='R')
-        #
-        #                           ])
-        # S, K, T, v, r, type, q = (float(Inputparams['S_0']), float(Inputparams['K']), float(Inputparams['T']),
-        #                           float(Inputparams['v']), float(Inputparams['rf']), Inputparams['type'],
-        #                           float(Inputparams['q']))
-        # model = pricer(S, K, T, v, r, type)
-        # P = model.BSM(q)
-        # put_text("the theoretical price of your option is {}".format(P))
+        # Q6
+        Inputparams = input_group("Please choose/enter your parameters",
+                                  [
+                                      select('Option Type', options=['Put'], name='type'),
+                                      input('S(0)', name='S_0'),
+                                      input('Volatility (v)', name='v'),
+                                      input('risk free rate (in float format, eg.0.05)', name='rf'),
+                                      input('Time to maturity (year)', name='T'),
+                                      input('Strike Price (K)', name='K'),
+                                      input('lower barrier L', name='B_low'),
+                                      input('Upper barrier U', name='B_up'),
+                                      input('Number of observation times', name='n'),
+                                      input('The cash rebate', name='R'),
+                                      input('Number of samples', name='M')
+
+                                  ])
+
+        option_type, S0, K, T, v, r, B_low, B_up, M, rebate, N = (Inputparams['type'], float(Inputparams['S_0']), float(Inputparams['K']), float(Inputparams['T']),
+                                  float(Inputparams['v']), float(Inputparams['rf']), float(Inputparams['B_low']), float(Inputparams['B_up']),
+                                  float(Inputparams['M']), float(Inputparams['R']), float(Inputparams['n']))
+
+        kiko = KikoOptionMC(option_type, S0, K, B_low, B_up, T, N, r, v, M, rebate)
+        values = list(kiko.value())
+        P, lower_bound, upper_bound = values[0], values[1], values[2]
+        put_markdown('## Result')
+        put_text("The theoretical price of your option is {:.4f}".format(P))
+        put_text("The lower bound is {:.4f}".format(lower_bound))
+        put_text("The upper bound is {:.4f}".format(upper_bound))
+        #put_text(option_type, S0, K, B_low, B_up, T, N, r, v, M, rebate)
+
     elif choice == 'G':
         return
 

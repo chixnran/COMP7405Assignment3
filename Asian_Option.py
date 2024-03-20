@@ -16,8 +16,8 @@ class AsianOptionMC(object):
         except ValueError:
             print('Error passing Options parameters')
 
-        if option_type != 'call' and option_type != 'put':
-            raise ValueError("Error: option type not valid. Enter 'call' or 'put'")
+        if option_type != 'Call' and option_type != 'Put':
+            raise ValueError("Error: option type not valid. Enter 'Call' or 'Put'")
         if S0 < 0 or K < 0 or T <= 0 or r < 0 or sigma < 0:
             raise ValueError('Error: Negative inputs not allowed')
 
@@ -30,7 +30,7 @@ class AsianOptionMC(object):
         muT = (0.5 * sigsqT + (self.r - 0.5 * self.sigma ** 2) * self.T * (self.N + 1) / (2 * self.N))
         d1 = ((np.log(self.S0 / self.K) + (muT + 0.5 * sigsqT)) / np.sqrt(sigsqT))
         d2 = d1 - np.sqrt(sigsqT)
-        if self.option_type == 'call':
+        if self.option_type == 'Call':
             N1 = 0.5 * (1 + erf(d1 / np.sqrt(2)))
             N2 = 0.5 * (1 + erf(d2 / np.sqrt(2)))
             geometric_value = self.discount * (self.S0 * np.exp(muT) * N1 - self.K * N2)
@@ -50,7 +50,7 @@ class AsianOptionMC(object):
 
     @property
     def ArithPayoff(self):
-        if self.option_type == 'call':
+        if self.option_type == 'Call':
             ArithPayoff = self.discount \
                           * np.maximum(np.mean(self.price_path, 1) - self.K, 0)
         else:
@@ -61,7 +61,7 @@ class AsianOptionMC(object):
     @property
     def GeoPayoff(self):
         geometric_average = np.exp((1 / float(self.N)) * np.sum(np.log(self.price_path), 1))
-        if self.option_type == 'call':
+        if self.option_type == 'Call':
             payoff_geometric = self.discount * np.maximum(geometric_average - self.K, 0)
         else:
             payoff_geometric = self.discount * np.maximum(self.K - geometric_average, 0)
@@ -77,7 +77,7 @@ class AsianOptionMC(object):
 
     @property
     def value_with_control_variate(self):
-        value_with_CV = self.ArithPayoff + self.GeometricAsianOption - self.GeoPayoff
+        value_with_CV = self.ArithPayoff + self.GeometricAsianOption - self.GeoPayoff()
         value_with_control_variate = np.mean(value_with_CV, 0)
         value_with_control_variate_std = np.std(value_with_CV, 0)
         upper_bound_CV = value_with_control_variate + 1.96 * value_with_control_variate_std / np.sqrt(self.M)
