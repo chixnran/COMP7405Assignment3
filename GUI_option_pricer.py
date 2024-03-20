@@ -7,12 +7,13 @@ from Asian_Option import AsianOptionMC
 from Basket_Option import BasketOptionMC
 from KIKO import KikoOptionMC
 from IV import IV
+from BiTreeAmericanOption import AmericanOption
 
 
 OptionParameters = {
         'European':['S(0)','σ','rf','T','K','type','repo rate q'],  #S(0) | volatility σ | rf rate | T | K | type | repo rate q
         'Implied Volatility':['S(0)','rf','T','K','type','the option premium'],
-        'American':['S(0)','σ','rf','T','K','type','number of steps N'], #the number of steps N
+        'American Option':['S(0)','σ','rf','T','K','type','number of steps N'], #the number of steps N
         'Geometric Asian option':['S(0)','σ','rf','T','K','type','number of observation times for the geometric average n'], #the number of observation times for the geometric average n
         'Arithmetic Asian option':['S(0)','σ','rf','T','K','type','number of observation times for the geometric average n',
                                    'number of paths in the Monte Carlo simulation','control variate method'], #Geometric Asian option + the number of paths in the Monte Carlo simulation | control variate method
@@ -49,6 +50,7 @@ def main():
         put_markdown('## Result')
         put_text("the theoretical price of your option is {:4f}".format(P))
 
+    # Q2
     elif choice == 'Implied Volatility':
         # Q2 iv
         Inputparams = input_group("Please choose/enter your parameters",
@@ -67,7 +69,7 @@ def main():
         put_markdown('## Result')
         put_text("the implied volatility is {:4f}".format(iv))
 
-
+    # Q3-a
     elif choice == 'Geometric Asian option':
         # Q3 geometric asian
         Inputparams = input_group("Please choose/enter your parameters",
@@ -89,6 +91,7 @@ def main():
         put_markdown('## Result')
         put_text("the theoretical price of your option is {:4f}".format(P))
 
+    # Q3-b
     elif choice == 'Geometric basket option':
         # Q3 geometric basket
         Inputparams = input_group("Please choose/enter your parameters",
@@ -117,6 +120,7 @@ def main():
         put_markdown('## Result')
         put_text("the theoretical price of your option is {:4f}".format(P))
 
+    # Q4
     elif choice == 'Arithmetic Asian option':
         # Q4 MC arithmatic asian option
         Inputparams = input_group("Please choose/enter your parameters",
@@ -152,6 +156,7 @@ def main():
             put_text("The lower bound is {:.4f}".format(lower_bound))
             put_text("The upper bound is {:.4f}".format(upper_bound))
 
+    # Q5
     elif choice == 'Arithmetic basket option':
         # Q5 arithmetic basket
         Inputparams = input_group("Please choose/enter your parameters",
@@ -193,6 +198,7 @@ def main():
             put_text("The lower bound is {:.4f}".format(lower_bound))
             put_text("The upper bound is {:.4f}".format(upper_bound))
 
+    # Q6
     elif choice == 'KIKO put option':
         # Q6
         Inputparams = input_group("Please choose/enter your parameters",
@@ -224,8 +230,25 @@ def main():
         put_text("The upper bound is {:.4f}".format(upper_bound))
         #put_text(option_type, S0, K, B_low, B_up, T, N, r, v, M, rebate)
 
-    elif choice == 'American':
-        return
+    # Q7
+    elif choice == 'American Option':
+        Inputparams = input_group("Please choose/enter your parameters",
+                                  [
+                                      select('Option Type', options=['Call', 'Put'], name='type'),
+                                      input('S(0)', name='S_0'),
+                                      input('Volatility (v in float format, eg. 0.2)', name='v'),
+                                      input('risk free rate (in float format, eg. 0.05)', name='rf'),
+                                      input('Time to maturity (T)', name='T'),
+                                      input('Strike Price (K)', name='K'),
+                                      input('Number of steps ', name='N')
+
+                                  ])
+        S0, K, T, v, r, N, option_type = (float(Inputparams['S_0']), float(Inputparams['K']), float(Inputparams['T']),
+                                  float(Inputparams['v']), float(Inputparams['rf']), int(Inputparams['N']), Inputparams['type'])
+        model = AmericanOption()
+        P = model.BiTreeAmericanOption(S0, v, r, T, K, N, option_type)
+        put_markdown('## Result')
+        put_text("the theoretical price of your option is {:4f}".format(P))
 
 
 if __name__ == '__main__':

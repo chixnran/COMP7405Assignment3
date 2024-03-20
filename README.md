@@ -17,4 +17,28 @@ pip3 install -U https://github.com/pywebio/PyWebIO/archive/dev-release.zip
 
 **Prerequisites**: PyWebIO requires Python 3.5.2 or newer
 
-## Quickstart
+## Script
+```bash
+python GUI_option_pricer.py
+```
+
+**Serve as web service**
+The program will be opened in Chrome.
+<p align="center">
+    <a href="http://pywebio-demos.pywebio.online/?pywebio_api=bmi">
+        <img src="https://raw.githubusercontent.com/wang0618/PyWebIO/dev/docs/assets/demo.gif" alt="PyWebIO demo" width="400px"/>
+    </a>
+</p>
+
+
+**Step 1: Choose the class of your option**<br/>
+First you need to choose the type of option you want to compute.
+
+**Step 2: Input parameters**<br/>
+Then you need to enter the parameters of your option.
+
+**Step 3: Computation**<br/>
+Click 'Submit' to conduct computing.
+
+The above pricer will exit immediately after the calculation.
+
