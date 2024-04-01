@@ -145,7 +145,7 @@ def main():
             values = list(asian_option.value)
             P, lower_bound, upper_bound = values[0], values[1], values[2]
             put_markdown('## Result')
-            put_text("The value with control variate is {:.4f}".format(P))
+            put_text("The value is {:.4f}".format(P))
             put_text("The lower bound is {:.4f}".format(lower_bound))
             put_text("The upper bound is {:.4f}".format(upper_bound))
         else:
@@ -187,7 +187,7 @@ def main():
             values = list(basket_option.value())
             P, lower_bound, upper_bound = values[0], values[1], values[2]
             put_markdown('## Result')
-            put_text("The value with control variate is {:.4f}".format(P))
+            put_text("The value is {:.4f}".format(P))
             put_text("The lower bound is {:.4f}".format(lower_bound))
             put_text("The upper bound is {:.4f}".format(upper_bound))
         else:
