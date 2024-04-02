@@ -36,8 +36,9 @@ First you need to choose the type of option you want to compute.
 
 **Step 2: Input parameters**<br/>
 Then you need to enter the parameters of your option.
-
-<img src="https://github.com/chixnran/COMP7405Assignment3/assets/144542687/b9244284-af6b-4b3f-b1ac-968bed9b1786" width="300" height="200">
+<p align="center">
+    <img src="https://github.com/chixnran/COMP7405Assignment3/assets/144542687/b9244284-af6b-4b3f-b1ac-968bed9b1786" width="450" height="400">
+</p>
 
 **Step 3: Computation**<br/>
 Click 'Submit' to conduct computing.
