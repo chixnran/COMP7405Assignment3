@@ -34,6 +34,9 @@ The program will be opened in Chrome.
 **Step 1: Choose the class of your option**<br/>
 First you need to choose the type of option you want to compute.
 
+<p align="center">
+    <img src="https://github.com/chixnran/COMP7405Assignment3/assets/144542687/639faf61-ffba-4064-843d-0ffd80c8c0c6" width="500" height="200">
+</p>
 **Step 2: Input parameters**<br/>
 Then you need to enter the parameters of your option.
 <p align="center">
